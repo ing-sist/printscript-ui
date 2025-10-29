@@ -1,0 +1,49 @@
+# .github/workflows/deploy-dev.yml
+
+name: Deploy to Development
+
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/ing-sist/printscript-ui-dev:latest
+
+          build-args: |
+            VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL_DEV }}
+            VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL_DEV }}
+            VITE_AUTH0_USERNAME=${{ secrets.VITE_AUTH0_USERNAME_DEV }}
+            VITE_AUTH0_PASSWORD=${{ secrets.VITE_AUTH0_PASSWORD_DEV }}
+
+      - name: Deploy to Development VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_VM_HOST }}
+          username: ${{ secrets.DEV_VM_USER }}
+          key: ${{ secrets.DEV_VM_SSH_KEY }}
+          script: |
+            cd infra
+            docker pull ghcr.io/ing-sist/printscript-ui-dev:latest
+            docker compose -f docker-compose.dev.yml up -d
