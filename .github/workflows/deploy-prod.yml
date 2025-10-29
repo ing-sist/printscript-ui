@@ -1,0 +1,49 @@
+# .github/workflows/deploy-prod.yml
+
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ "master", "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/ing-sist/printscript-ui-main:latest
+
+          build-args: |
+            VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL_PROD }}
+            VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL_PROD }}
+            VITE_AUTH0_USERNAME=${{ secrets.VITE_AUTH0_USERNAME_PROD }}
+            VITE_AUTH0_PASSWORD=${{ secrets.VITE_AUTH0_PASSWORD_PROD }}
+
+      - name: Deploy to Production VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}
+          username: ${{ secrets.PROD_VM_USER }}
+          key: ${{ secrets.PROD_VM_SSH_KEY }}
+          script: |
+            cd infra
+            docker pull ghcr.io/ing-sist/printscript-ui-main:latest
+            docker compose -f docker-compose.prod.yml up -d
