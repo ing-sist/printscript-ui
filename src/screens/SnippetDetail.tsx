@@ -154,4 +154,3 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
       </Box>
   );
 }
-

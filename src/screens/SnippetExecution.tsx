@@ -4,18 +4,19 @@ import Editor from "react-simple-code-editor";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
 import {useState} from "react";
 
-export const SnippetExecution = () => {
-  // Here you should provide all the logic to connect to your sockets.
-  const [input, setInput] = useState<string>("")
-  const [output, setOutput] = useState<string[]>([]);
+type SnippetExecutionProps = {
+  outputs?: string[];
+  errors?: string[];
+}
 
-  //TODO: get the output from the server
-  const code = output.join("\n")
+export const SnippetExecution = ({outputs = [], errors = []}: SnippetExecutionProps) => {
+  const [input, setInput] = useState<string>("")
+
+  const code = [...outputs, ...errors.map(e => `ERROR: ${e}`)].join("\n")
 
   const handleEnter = (event: { key: string }) => {
     if (event.key === 'Enter') {
       //TODO: logic to send inputs to server
-      setOutput([...output, input])
       setInput("")
     }
   };

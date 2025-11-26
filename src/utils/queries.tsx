@@ -8,6 +8,9 @@ import {FileType} from "../types/FileType.ts";
 import {Rule} from "../types/Rule.ts";
 // import {useAuth0} from "@auth0/auth0-react";
 // import {useEffect} from "react";
+import {useAuth0} from "@auth0/auth0-react";
+import {useMemo} from "react";
+import {ApiSnippetOperations} from "./real/apiSnippetOperations.ts";
 
 
 export const useSnippetsOperations = () => {
@@ -21,7 +24,14 @@ export const useSnippetsOperations = () => {
   //         .catch(error => console.error(error));
   // });
 
-  const snippetOperations: SnippetOperations = new FakeSnippetOperations(/* getAccessTokenSilently */); // TODO: Replace with your implementation
+  const {getAccessTokenSilently} = useAuth0();
+
+  const snippetOperations: SnippetOperations = useMemo(() => {
+    if (import.meta.env.VITE_USE_FAKE === "true") {
+      return new FakeSnippetOperations(/* getAccessTokenSilently */);
+    }
+    return new ApiSnippetOperations(getAccessTokenSilently);
+  }, [getAccessTokenSilently]);
 
   return snippetOperations
 }
