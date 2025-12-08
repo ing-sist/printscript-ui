@@ -79,6 +79,12 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
+  lintSnippet(id: string): Promise<string> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve("Linted snippet content"), DELAY)
+    })
+  }
+
   getTestCases(): Promise<TestCase[]> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.getTestCases()), DELAY)
@@ -124,6 +130,12 @@ export class FakeSnippetOperations implements SnippetOperations {
   modifyLintingRule(newRules: Rule[]): Promise<Rule[]> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.modifyLintingRule(newRules)), DELAY)
+    })
+  }
+
+  downloadSnippet(id: string): Promise<Blob> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(new Blob(["Fake content"], {type: "text/plain"})), DELAY)
     })
   }
 }

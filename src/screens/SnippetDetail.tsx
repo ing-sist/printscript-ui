@@ -4,14 +4,15 @@ import {highlight, languages} from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
+import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {
+  useDownloadSnippet,
   useUpdateSnippetById
 } from "../utils/queries.tsx";
-import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
+import {useFormatSnippet, useGetSnippetById, useShareSnippet, useLintSnippet} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
-import {BugReport, Delete, Download, Save, Share} from "@mui/icons-material";
+import {BugReport, Delete, Download, Save, Share, FactCheck} from "@mui/icons-material";
 import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
 import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx";
 import {Snippet} from "../utils/snippet.ts";
@@ -26,23 +27,35 @@ type SnippetDetailProps = {
 }
 
 const DownloadButton = ({snippet}: { snippet?: Snippet }) => {
+  const {mutateAsync: downloadSnippet} = useDownloadSnippet();
+
   if (!snippet) return null;
-  const file = new Blob([snippet.content], {type: 'text/plain'});
+
+  const handleDownload = async () => {
+    try {
+      const blob = await downloadSnippet(snippet.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${snippet.name}.${snippet.extension}`; // Or use the filename from Content-Disposition header if available
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (e) {
+      console.error("Failed to download snippet", e);
+    }
+  };
 
   return (
     <Tooltip title={"Download"}>
-      <IconButton sx={{
-        cursor: "pointer"
-      }}>
-        <a download={`${snippet.name}.${snippet.extension}`} target="_blank"
-           rel="noreferrer" href={URL.createObjectURL(file)} style={{
-          textDecoration: "none",
-          color: "inherit",
-          display: 'flex',
-          alignItems: 'center',
-        }}>
-          <Download/>
-        </a>
+      <IconButton 
+        onClick={handleDownload}
+        sx={{
+          cursor: "pointer"
+        }}
+      >
+        <Download/>
       </IconButton>
     </Tooltip>
   )
@@ -60,7 +73,16 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
   const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
+  const {mutate: lintSnippet, isLoading: isLintLoading, data: lintSnippetData} = useLintSnippet()
   const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({onSuccess: () => queryClient.invalidateQueries(['snippet', id])})
+
+  const [lintResult, setLintResult] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (lintSnippetData) {
+      setLintResult(lintSnippetData)
+    }
+  }, [lintSnippetData])
 
   useEffect(() => {
     if (snippet) {
@@ -109,8 +131,13 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
               {/*</Tooltip>*/}
               {/* TODO: we can implement a live mode*/}
               <Tooltip title={"Format"}>
-                <IconButton onClick={() => formatSnippet(code)} disabled={isFormatLoading}>
+                <IconButton onClick={() => formatSnippet(id)} disabled={isFormatLoading}>
                   <ReadMoreIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={"Lint"}>
+                <IconButton onClick={() => lintSnippet(id)} disabled={isLintLoading}>
+                  <FactCheck />
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Save changes"}>
@@ -151,6 +178,15 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                            onShare={handleShareSnippet}/>
         <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)}/>
         <DeleteConfirmationModal open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} id={snippet?.id ?? ""} setCloseDetails={handleCloseModal} />
+        <Dialog open={!!lintResult} onClose={() => setLintResult(null)}>
+          <DialogTitle>Lint Result</DialogTitle>
+          <DialogContent>
+            <Typography>{lintResult}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setLintResult(null)}>Close</Button>
+          </DialogActions>
+        </Dialog>
       </Box>
   );
 }

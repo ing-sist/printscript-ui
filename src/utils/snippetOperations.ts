@@ -24,7 +24,9 @@ export interface SnippetOperations {
 
   getTestCases(): Promise<TestCase[]>
 
-  formatSnippet(snippet: string): Promise<string>
+  formatSnippet(id: string): Promise<string>
+
+  lintSnippet(id: string): Promise<string>
 
   postTestCase(testCase: Partial<TestCase>): Promise<TestCase>
 
@@ -39,4 +41,6 @@ export interface SnippetOperations {
   modifyFormatRule(newRules: Rule[]): Promise<Rule[]>
 
   modifyLintingRule(newRules: Rule[]): Promise<Rule[]>
+
+  downloadSnippet(id: string): Promise<Blob>
 }

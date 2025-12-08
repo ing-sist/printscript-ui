@@ -6,24 +6,12 @@ import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
 import {TestCase} from "../types/TestCase.ts";
 import {FileType} from "../types/FileType.ts";
 import {Rule} from "../types/Rule.ts";
-// import {useAuth0} from "@auth0/auth0-react";
-// import {useEffect} from "react";
 import {useAuth0} from "@auth0/auth0-react";
 import {useMemo} from "react";
 import {ApiSnippetOperations} from "./real/apiSnippetOperations.ts";
 
 
 export const useSnippetsOperations = () => {
-  // const {getAccessTokenSilently} = useAuth0()
-  //
-  // useEffect(() => {
-  //     getAccessTokenSilently()
-  //         .then(token => {
-  //             console.log(token)
-  //         })
-  //         .catch(error => console.error(error));
-  // });
-
   const {getAccessTokenSilently} = useAuth0();
 
   const snippetOperations: SnippetOperations = useMemo(() => {
@@ -160,7 +148,15 @@ export const useFormatSnippet = () => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<string, Error, string>(
-      snippetContent => snippetOperations.formatSnippet(snippetContent)
+      id => snippetOperations.formatSnippet(id)
+  );
+}
+
+export const useLintSnippet = () => {
+  const snippetOperations = useSnippetsOperations()
+
+  return useMutation<string, Error, string>(
+      id => snippetOperations.lintSnippet(id)
   );
 }
 
@@ -180,4 +176,12 @@ export const useGetFileTypes = () => {
   const snippetOperations = useSnippetsOperations()
 
   return useQuery<FileType[], Error>('fileTypes', () => snippetOperations.getFileTypes());
+}
+
+export const useDownloadSnippet = () => {
+  const snippetOperations = useSnippetsOperations()
+
+  return useMutation<Blob, Error, string>(
+      id => snippetOperations.downloadSnippet(id)
+  );
 }
