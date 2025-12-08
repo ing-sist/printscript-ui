@@ -14,7 +14,8 @@ import {
   TablePagination,
   TableRow,
   FormControl,
-  InputLabel
+  InputLabel,
+  TableSortLabel
 } from "@mui/material";
 import {AddSnippetModal} from "./AddSnippetModal.tsx";
 import {useRef, useState} from "react";
@@ -65,7 +66,9 @@ export const SnippetTable = (props: SnippetTableProps) => {
         name: splitName[0],
         content: text,
         language: fileType.language,
-        extension: fileType.extension
+        extension: fileType.extension,
+        description: "",
+        version: "1.0.0"
       })
     }).catch(e => {
       console.error(e)
@@ -78,6 +81,19 @@ export const SnippetTable = (props: SnippetTableProps) => {
   function handleClickMenu() {
     setPopoverMenuOpened(false)
   }
+
+  const handleSort = (field: string) => {
+    if (handleFilterChange) {
+      const currentSort = filters?.sort ?? "";
+      const currentDir = filters?.dir ?? "ASC";
+      const isAsc = currentSort === field && currentDir === "ASC";
+      handleFilterChange({
+        ...filters,
+        sort: field,
+        dir: isAsc ? "DESC" : "ASC"
+      });
+    }
+  };
 
   return (
       <>
@@ -146,10 +162,34 @@ export const SnippetTable = (props: SnippetTableProps) => {
         <Table size="medium" sx={{borderSpacing: "0 10px", borderCollapse: "separate"}}>
           <TableHead>
             <TableRow sx={{fontWeight: 'bold'}}>
-              <StyledTableCell sx={{fontWeight: "bold"}}>Name</StyledTableCell>
-              <StyledTableCell sx={{fontWeight: "bold"}}>Language</StyledTableCell>
+              <StyledTableCell sx={{fontWeight: "bold"}}>
+                <TableSortLabel
+                    active={filters?.sort === 'name'}
+                    direction={filters?.sort === 'name' && filters?.dir === 'DESC' ? 'desc' : 'asc'}
+                    onClick={() => handleSort('name')}
+                >
+                  Name
+                </TableSortLabel>
+              </StyledTableCell>
+              <StyledTableCell sx={{fontWeight: "bold"}}>
+                <TableSortLabel
+                    active={filters?.sort === 'language'}
+                    direction={filters?.sort === 'language' && filters?.dir === 'DESC' ? 'desc' : 'asc'}
+                    onClick={() => handleSort('language')}
+                >
+                  Language
+                </TableSortLabel>
+              </StyledTableCell>
               <StyledTableCell sx={{fontWeight: "bold"}}>Author</StyledTableCell>
-              <StyledTableCell sx={{fontWeight: "bold"}}>Conformance</StyledTableCell>
+              <StyledTableCell sx={{fontWeight: "bold"}}>
+                <TableSortLabel
+                    active={filters?.sort === 'conformance'}
+                    direction={filters?.sort === 'conformance' && filters?.dir === 'DESC' ? 'desc' : 'asc'}
+                    onClick={() => handleSort('conformance')}
+                >
+                  Conformance
+                </TableSortLabel>
+              </StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>{

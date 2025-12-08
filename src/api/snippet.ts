@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios';
 import { 
+  Page,
   SnippetFilterDTO, 
   SnippetResponseDTO, 
   SnippetUploadDTO, 
@@ -62,7 +63,7 @@ export const getAllSnippets = async (client: AxiosInstance, filter?: SnippetFilt
         if (filter.sort) queryParams.append('sort', filter.sort);
         if (filter.dir) queryParams.append('dir', filter.dir);
     }
-    const response = await client.get<SnippetResponseDTO[]>(`/snippets?${queryParams.toString()}`);
+    const response = await client.get<Page<SnippetResponseDTO>>(`/snippets?${queryParams.toString()}`);
     return response.data;
 }
 

@@ -4,7 +4,7 @@ import {SyntheticEvent, useState} from "react";
 import {AddRounded} from "@mui/icons-material";
 import {useGetTestCases, usePostTestCase, useRemoveTestCase} from "../../utils/queries.tsx";
 import {TabPanel} from "./TabPanel.tsx";
-import {queryClient} from "../../App.tsx";
+import {queryClient} from "../../queryClient.ts";
 
 type TestSnippetModalProps = {
     open: boolean

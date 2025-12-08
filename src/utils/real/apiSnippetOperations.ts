@@ -37,7 +37,7 @@ export class ApiSnippetOperations implements SnippetOperations {
   }
 
   async listSnippetDescriptors(page: number, pageSize: number, snippetName?: string, filters?: SnippetFilterDTO): Promise<PaginatedSnippets> {
-    const snippets = await snippetApi.getAllSnippets(this.client, {
+    const snippetsPage = await snippetApi.getAllSnippets(this.client, {
       page,
       size: pageSize,
       name: snippetName,
@@ -45,17 +45,19 @@ export class ApiSnippetOperations implements SnippetOperations {
     });
     
     return {
-      page,
-      page_size: pageSize,
-      count: 100, // Backend doesn't return total count yet
-      snippets: snippets.map(s => ({
+      page: snippetsPage.number ?? page,
+      page_size: snippetsPage.size ?? pageSize,
+      count: snippetsPage.totalElements ?? 0,
+      snippets: snippetsPage.content.map(s => ({
         id: s.id,
         name: s.name,
         content: "", // List doesn't return content
         language: s.language,
         extension: "txt", // Should infer from language
         compliance: (s.conformance?.toLowerCase() as ComplianceEnum) || 'pending',
-        author: s.ownerId
+        author: s.ownerId,
+        description: s.description,
+        version: s.version
       }))
     };
   }
@@ -64,8 +66,8 @@ export class ApiSnippetOperations implements SnippetOperations {
     const dto: SnippetUploadDTO = {
       name: createSnippet.name,
       language: createSnippet.language,
-      version: "1.0.0",
-      description: "Created via Web UI",
+      version: createSnippet.version,
+      description: createSnippet.description,
     };
 
     const response = await snippetApi.uploadSnippetInline(this.client, createSnippet.content, dto);
@@ -78,6 +80,8 @@ export class ApiSnippetOperations implements SnippetOperations {
       extension: createSnippet.extension,
       compliance: "pending",
       author: "Me",
+      description: createSnippet.description,
+      version: createSnippet.version
     };
   }
 
@@ -96,6 +100,8 @@ export class ApiSnippetOperations implements SnippetOperations {
           extension: "txt",
           compliance: (metadata.conformance?.toLowerCase() as ComplianceEnum) || 'pending',
           author: metadata.ownerId,
+          description: metadata.description,
+          version: metadata.version
         };
     } catch (e) {
         console.error("Error fetching snippet", e);
@@ -150,7 +156,7 @@ export class ApiSnippetOperations implements SnippetOperations {
   async getFileTypes(): Promise<FileType[]> {
     const languages = await languageApi.getSupportedLanguages(this.client);
     return languages.map(l => ({
-      language: l.name,
+      language: l.language,
       extension: l.extension
     }));
   }
@@ -174,9 +180,9 @@ export class ApiSnippetOperations implements SnippetOperations {
     return await snippetApi.downloadSnippetBlob(this.client, id);
   }
 
-  async postTestCase(testCase: Partial<TestCase>): Promise<TestCase> { throw new Error("Not implemented in backend"); }
+  async postTestCase(_testCase: Partial<TestCase>): Promise<TestCase> { throw new Error("Not implemented in backend"); }
   async removeTestCase(id: string): Promise<string> { return id; }
-  async testSnippet(testCase: Partial<TestCase>): Promise<TestCaseResult> { 
+  async testSnippet(_testCase: Partial<TestCase>): Promise<TestCaseResult> {
       console.warn("Testing backend endpoint not connected");
       return "fail"; 
   }

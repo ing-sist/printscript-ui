@@ -1,9 +1,10 @@
 import './App.css';
 import {RouterProvider, createBrowserRouter} from "react-router-dom";
 import HomeScreen from "./screens/Home.tsx";
-import {QueryClient, QueryClientProvider} from "react-query";
+import {QueryClientProvider} from "react-query";
 import RulesScreen from "./screens/Rules.tsx";
 import {withAuthenticationRequired} from "@auth0/auth0-react";
+import {queryClient} from "./queryClient.ts";
 
 const router = createBrowserRouter([
     {
@@ -16,7 +17,6 @@ const router = createBrowserRouter([
     }
 ]);
 
-export const queryClient = new QueryClient()
 const App = () => {
     return (
         <QueryClientProvider client={queryClient}>

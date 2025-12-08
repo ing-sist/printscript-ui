@@ -18,7 +18,7 @@ import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx"
 import {Snippet} from "../utils/snippet.ts";
 import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
-import {queryClient} from "../App.tsx";
+import {queryClient} from "../queryClient.ts";
 import {DeleteConfirmationModal} from "../components/snippet-detail/DeleteConfirmationModal.tsx";
 
 type SnippetDetailProps = {

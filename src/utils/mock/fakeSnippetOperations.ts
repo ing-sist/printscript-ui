@@ -31,7 +31,7 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  listSnippetDescriptors(page: number, pageSize: number, snippetName?: string, filters?: SnippetFilterDTO): Promise<PaginatedSnippets> {
+  listSnippetDescriptors(page: number, pageSize: number, _snippetName?: string, _filters?: SnippetFilterDTO): Promise<PaginatedSnippets> {
     const response: PaginatedSnippets = {
       page: page,
       page_size: pageSize,
@@ -81,7 +81,7 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  lintSnippet(id: string): Promise<string> {
+  lintSnippet(_id: string): Promise<string> {
     return new Promise(resolve => {
       setTimeout(() => resolve("Linted snippet content"), DELAY)
     })
@@ -135,7 +135,7 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  downloadSnippet(id: string): Promise<Blob> {
+  downloadSnippet(_id: string): Promise<Blob> {
     return new Promise(resolve => {
       setTimeout(() => resolve(new Blob(["Fake content"], {type: "text/plain"})), DELAY)
     })
