@@ -2,34 +2,17 @@ import {useMutation, UseMutationResult, useQuery} from 'react-query';
 import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippet.ts';
 import {SnippetOperations} from "./snippetOperations.ts";
 import {PaginatedUsers} from "./users.ts";
-import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
 import {TestCase} from "../types/TestCase.ts";
 import {FileType} from "../types/FileType.ts";
 import {Rule} from "../types/Rule.ts";
 import {useAuth0} from "@auth0/auth0-react";
-import {useEffect, useMemo, useState} from "react";
 import {ApiSnippetOperations} from "./real/apiSnippetOperations.ts";
 import {SnippetFilterDTO} from "../api/types";
 
 
 export const useSnippetsOperations = () => {
   const {getAccessTokenSilently} = useAuth0();
-  const [token, setToken] = useState<string>("");
-
-  useEffect(() => {
-      getAccessTokenSilently()
-          .then(token => {
-              setToken(token)
-          })
-          .catch(error => console.error(error));
-  }, [getAccessTokenSilently]);
-
-  const snippetOperations: SnippetOperations = useMemo(() => {
-    if (import.meta.env.VITE_USE_FAKE === "true") {
-      return new FakeSnippetOperations(/* getAccessTokenSilently */);
-    }
-    return new ApiSnippetOperations(getAccessTokenSilently);
-  }, [getAccessTokenSilently]);
+  const snippetOperations: SnippetOperations = new ApiSnippetOperations(getAccessTokenSilently);
 
   return snippetOperations
 }
