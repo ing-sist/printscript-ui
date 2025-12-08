@@ -9,7 +9,7 @@ import { SnippetOperations } from "../snippetOperations";
 import * as snippetApi from "../../api/snippet";
 import * as userApi from "../../api/user";
 import * as languageApi from "../../api/language";
-import { SnippetUploadDTO, SubmitSnippetDTO } from "../../api/types";
+import { SnippetUploadDTO, SubmitSnippetDTO, SnippetFilterDTO } from "../../api/types";
 
 type GetToken = () => Promise<string>;
 
@@ -36,11 +36,12 @@ export class ApiSnippetOperations implements SnippetOperations {
     });
   }
 
-  async listSnippetDescriptors(page: number, pageSize: number, snippetName?: string): Promise<PaginatedSnippets> {
+  async listSnippetDescriptors(page: number, pageSize: number, snippetName?: string, filters?: SnippetFilterDTO): Promise<PaginatedSnippets> {
     const snippets = await snippetApi.getAllSnippets(this.client, {
       page,
       size: pageSize,
-      name: snippetName
+      name: snippetName,
+      ...filters
     });
     
     return {

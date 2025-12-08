@@ -7,12 +7,22 @@ import {TestCase} from "../types/TestCase.ts";
 import {FileType} from "../types/FileType.ts";
 import {Rule} from "../types/Rule.ts";
 import {useAuth0} from "@auth0/auth0-react";
-import {useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {ApiSnippetOperations} from "./real/apiSnippetOperations.ts";
+import {SnippetFilterDTO} from "../api/types";
 
 
 export const useSnippetsOperations = () => {
   const {getAccessTokenSilently} = useAuth0();
+  const [token, setToken] = useState<string>("");
+
+  useEffect(() => {
+      getAccessTokenSilently()
+          .then(token => {
+              setToken(token)
+          })
+          .catch(error => console.error(error));
+  }, [getAccessTokenSilently]);
 
   const snippetOperations: SnippetOperations = useMemo(() => {
     if (import.meta.env.VITE_USE_FAKE === "true") {
@@ -24,10 +34,10 @@ export const useSnippetsOperations = () => {
   return snippetOperations
 }
 
-export const useGetSnippets = (page: number = 0, pageSize: number = 10, snippetName?: string) => {
+export const useGetSnippets = (page: number = 0, pageSize: number = 10, snippetName?: string, filters?: SnippetFilterDTO) => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<PaginatedSnippets, Error>(['listSnippets', page,pageSize,snippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize,snippetName));
+  return useQuery<PaginatedSnippets, Error>(['listSnippets', page,pageSize,snippetName, filters], () => snippetOperations.listSnippetDescriptors(page, pageSize,snippetName, filters));
 };
 
 export const useGetSnippetById = (id: string) => {

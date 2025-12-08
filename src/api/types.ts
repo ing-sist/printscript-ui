@@ -21,7 +21,9 @@ export interface SnippetFilterDTO {
   name?: string;
   language?: string;
   conformance?: string;
+  mode?: string;
   sort?: string;
+  dir?: string;
 }
 
 export interface SnippetResponseDTO {

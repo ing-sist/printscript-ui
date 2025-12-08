@@ -8,6 +8,8 @@ import {TestCaseResult} from "../queries.tsx";
 import {FileType} from "../../types/FileType.ts";
 import {Rule} from "../../types/Rule.ts";
 
+import {SnippetFilterDTO} from "../../api/types";
+
 const DELAY: number = 1000
 
 export class FakeSnippetOperations implements SnippetOperations {
@@ -29,7 +31,7 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  listSnippetDescriptors(page: number,pageSize: number): Promise<PaginatedSnippets> {
+  listSnippetDescriptors(page: number, pageSize: number, snippetName?: string, filters?: SnippetFilterDTO): Promise<PaginatedSnippets> {
     const response: PaginatedSnippets = {
       page: page,
       page_size: pageSize,

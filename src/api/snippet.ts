@@ -57,6 +57,10 @@ export const getAllSnippets = async (client: AxiosInstance, filter?: SnippetFilt
         if (filter.size !== undefined) queryParams.append('size', filter.size.toString());
         if (filter.name) queryParams.append('name', filter.name);
         if (filter.language) queryParams.append('language', filter.language);
+        if (filter.conformance) queryParams.append('conformance', filter.conformance);
+        if (filter.mode) queryParams.append('mode', filter.mode);
+        if (filter.sort) queryParams.append('sort', filter.sort);
+        if (filter.dir) queryParams.append('dir', filter.dir);
     }
     const response = await client.get<SnippetResponseDTO[]>(`/snippets?${queryParams.toString()}`);
     return response.data;
