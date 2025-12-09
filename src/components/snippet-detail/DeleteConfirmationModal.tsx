@@ -1,7 +1,7 @@
 import {Box, Button, Typography} from "@mui/material";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
 import {useDeleteSnippet} from "../../utils/queries.tsx";
-import {queryClient} from "../../App.tsx";
+import {queryClient} from "../../queryClient.ts";
 
 type DeleteConfirmationModalProps = {
   open: boolean

@@ -9,10 +9,11 @@ type TabPanelProps = {
     value: number;
     test?: TestCase;
     setTestCase: (test: Partial<TestCase>) => void;
-    removeTestCase?: (testIndex: string) => void;
+    removeTestCase?: (vars: { snippetId: string; testId: string }) => void;
+    snippetId: string;
 }
 
-export const TabPanel = ({value, index, test: initialTest, setTestCase, removeTestCase}: TabPanelProps) => {
+export const TabPanel = ({value, index, test: initialTest, setTestCase, removeTestCase, snippetId}: TabPanelProps) => {
     const [testData, setTestData] = useState<Partial<TestCase> | undefined>(initialTest);
 
     const {mutateAsync: testSnippet, data} = useTestSnippet();
@@ -80,7 +81,7 @@ export const TabPanel = ({value, index, test: initialTest, setTestCase, removeTe
                     <Box display="flex" flexDirection="row" gap={1}>
                         {
                             (testData?.id && removeTestCase) && (
-                            <Button onClick={() => removeTestCase(testData?.id ?? "")} variant={"outlined"} color={"error"}
+                            <Button onClick={() => removeTestCase({ snippetId, testId: testData?.id ?? "" })} variant={"outlined"} color={"error"}
                                     startIcon={<Delete/>}>
                                 Remove
                             </Button>)
@@ -88,8 +89,13 @@ export const TabPanel = ({value, index, test: initialTest, setTestCase, removeTe
                         <Button disabled={!testData?.name} onClick={() => setTestCase(testData ?? {})} variant={"outlined"} startIcon={<Save/>}>
                             Save
                         </Button>
-                        <Button onClick={() => testSnippet(testData ?? {})} variant={"contained"} startIcon={<BugReport/>}
-                                disableElevation>
+                        <Button
+                            onClick={() => testSnippet({ snippetId, testId: testData?.id as string })}
+                            variant={"contained"}
+                            startIcon={<BugReport/>}
+                            disableElevation
+                            disabled={!snippetId || !testData?.id}
+                        >
                             Test
                         </Button>
                         {data && (data === "success" ? <Chip label="Pass" color="success"/> :

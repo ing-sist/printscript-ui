@@ -1,6 +1,4 @@
-# ---------------------------------
-# ETAPA 1: "Build" (Construcción)
-# ---------------------------------
+# BUILD
 FROM node:20-slim AS builder
 
 WORKDIR /app
@@ -13,19 +11,16 @@ COPY . .
 
 # --- Inyección de Variables de Entorno ---
 ARG VITE_FRONTEND_URL
-ARG VITE_BACKEND_URL
 ARG VITE_AUTH0_USERNAME
 ARG VITE_AUTH0_PASSWORD
 
-RUN VITE_FRONTEND_URL=$VITE_FRONTEND_URL \
-    VITE_BACKEND_URL=$VITE_BACKEND_URL \
-    VITE_AUTH0_USERNAME=$VITE_AUTH0_USERNAME \
-    VITE_AUTH0_PASSWORD=$VITE_AUTH0_PASSWORD \
-    npm run build
+ENV VITE_FRONTEND_URL=$VITE_FRONTEND_URL
+ENV VITE_AUTH0_USERNAME=$VITE_AUTH0_USERNAME
+ENV VITE_AUTH0_PASSWORD=$VITE_AUTH0_PASSWORD
 
-# ---------------------------------
-# ETAPA 2: "Serve" (Servidor)
-# ---------------------------------
+RUN npm run build
+
+# SERVER
 FROM nginx:stable-alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf

@@ -32,7 +32,6 @@ jobs:
           tags: ghcr.io/ing-sist/printscript-ui-main:latest
 
           build-args: |
-            VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL_PROD }}
             VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL_PROD }}
             VITE_AUTH0_USERNAME=${{ secrets.VITE_AUTH0_USERNAME_PROD }}
             VITE_AUTH0_PASSWORD=${{ secrets.VITE_AUTH0_PASSWORD_PROD }}

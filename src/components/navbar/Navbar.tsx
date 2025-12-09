@@ -1,7 +1,8 @@
 import {AppBar, Box, Button, Container, Toolbar, Typography} from "@mui/material";
-import {Code, Rule} from "@mui/icons-material";
+import {Code, Logout, Rule} from "@mui/icons-material";
 import {ReactNode} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
+import {useAuth0} from "@auth0/auth0-react";
 
 type PageType = {
     title: string;
@@ -22,6 +23,7 @@ const pages: PageType[] = [{
 export const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const {logout} = useAuth0();
     return (
         <AppBar position="static" elevation={0}>
             <Container maxWidth="xl">
@@ -39,7 +41,7 @@ export const Navbar = () => {
                     >
                         Printscript
                     </Typography>
-                    <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex'}, gap: '4px'}}>
+                    <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex'}, gap: '4px', alignItems: "center"}}>
                         {pages.map((page) => (
                             <Button
                                 key={page.title}
@@ -60,6 +62,24 @@ export const Navbar = () => {
                                 <Typography>{page.title}</Typography>
                             </Button>
                         ))}
+                        <Box sx={{flexGrow: 1}} />
+                        <Button
+                            onClick={() => logout({logoutParams: {returnTo: window.location.origin}})}
+                            sx={{
+                                my: 2,
+                                color: 'white',
+                                display: 'flex',
+                                justifyContent: "center",
+                                gap: "4px",
+                                backgroundColor: 'transparent',
+                                "&:hover": {
+                                    backgroundColor: 'primary.dark'
+                                }
+                            }}
+                        >
+                            <Logout/>
+                            <Typography>Logout</Typography>
+                        </Button>
                     </Box>
                 </Toolbar>
             </Container>

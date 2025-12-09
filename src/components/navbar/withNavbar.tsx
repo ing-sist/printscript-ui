@@ -3,7 +3,7 @@ import {Navbar} from "./Navbar.tsx";
 import {Box} from "@mui/material";
 
 export const withNavbar = (WrappedComponent: ComponentType<unknown>) => {
-    return () => (
+    const WithNavbar = () => (
         <>
             <Navbar/>
             <Box padding={"16px 128px"}>
@@ -11,4 +11,5 @@ export const withNavbar = (WrappedComponent: ComponentType<unknown>) => {
             </Box>
         </>
     );
+    return WithNavbar;
 };

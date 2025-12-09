@@ -7,6 +7,7 @@ import "prismjs/themes/prism-okaidia.css";
 import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {
+  useDownloadSnippet,
   useUpdateSnippetById
 } from "../utils/queries.tsx";
 import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
@@ -17,7 +18,7 @@ import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx"
 import {Snippet} from "../utils/snippet.ts";
 import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
-import {queryClient} from "../App.tsx";
+import {queryClient} from "../queryClient.ts";
 import {DeleteConfirmationModal} from "../components/snippet-detail/DeleteConfirmationModal.tsx";
 
 type SnippetDetailProps = {
@@ -26,23 +27,35 @@ type SnippetDetailProps = {
 }
 
 const DownloadButton = ({snippet}: { snippet?: Snippet }) => {
+  const {mutateAsync: downloadSnippet} = useDownloadSnippet();
+
   if (!snippet) return null;
-  const file = new Blob([snippet.content], {type: 'text/plain'});
+
+  const handleDownload = async () => {
+    try {
+      const blob = await downloadSnippet(snippet.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${snippet.name}.${snippet.extension}`; // Or use the filename from Content-Disposition header if available
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (e) {
+      console.error("Failed to download snippet", e);
+    }
+  };
 
   return (
     <Tooltip title={"Download"}>
-      <IconButton sx={{
-        cursor: "pointer"
-      }}>
-        <a download={`${snippet.name}.${snippet.extension}`} target="_blank"
-           rel="noreferrer" href={URL.createObjectURL(file)} style={{
-          textDecoration: "none",
-          color: "inherit",
-          display: 'flex',
-          alignItems: 'center',
-        }}>
-          <Download/>
-        </a>
+      <IconButton 
+        onClick={handleDownload}
+        sx={{
+          cursor: "pointer"
+        }}
+      >
+        <Download/>
       </IconButton>
     </Tooltip>
   )
@@ -59,7 +72,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
 
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
-  const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
+  const {mutateAsync: formatSnippet, isLoading: isFormatLoading} = useFormatSnippet()
   const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({onSuccess: () => queryClient.invalidateQueries(['snippet', id])})
 
   useEffect(() => {
@@ -68,15 +81,18 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
     }
   }, [snippet]);
 
-  useEffect(() => {
-    if (formatSnippetData) {
-      setCode(formatSnippetData)
-    }
-  }, [formatSnippetData])
-
-
   async function handleShareSnippet(userId: string) {
     shareSnippet({snippetId: id, userId})
+  }
+
+  const handleFormat = async () => {
+    try {
+      const formatted = await formatSnippet(id);
+      setCode(formatted);
+      await queryClient.invalidateQueries(['snippet', id]);
+    } catch (e) {
+      console.error("Failed to format snippet", e);
+    }
   }
 
   return (
@@ -109,7 +125,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
               {/*</Tooltip>*/}
               {/* TODO: we can implement a live mode*/}
               <Tooltip title={"Format"}>
-                <IconButton onClick={() => formatSnippet(code)} disabled={isFormatLoading}>
+                <IconButton onClick={handleFormat} disabled={isFormatLoading}>
                   <ReadMoreIcon />
                 </IconButton>
               </Tooltip>
@@ -149,9 +165,8 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
         <ShareSnippetModal loading={loadingShare || isLoading} open={shareModalOppened}
                            onClose={() => setShareModalOppened(false)}
                            onShare={handleShareSnippet}/>
-        <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)}/>
+        <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)} snippetId={id}/>
         <DeleteConfirmationModal open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} id={snippet?.id ?? ""} setCloseDetails={handleCloseModal} />
       </Box>
   );
 }
-

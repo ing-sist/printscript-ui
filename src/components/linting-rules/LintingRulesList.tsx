@@ -1,15 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {
   Button,
   Card,
   Checkbox,
   List,
   ListItem,
-  ListItemText, TextField,
+  ListItemText, Select, MenuItem, FormControl, InputLabel,
   Typography
 } from "@mui/material";
 import {useGetLintingRules, useModifyLintingRules} from "../../utils/queries.tsx";
-import {queryClient} from "../../App.tsx";
+import {queryClient} from "../../queryClient.ts";
 import {Rule} from "../../types/Rule.ts";
 
 const LintingRulesList = () => {
@@ -33,11 +33,6 @@ const LintingRulesList = () => {
       }
     })
     setRules(newRules)
-  };
-
-  const handleNumberChange = (rule: Rule) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
-    handleValueChange(rule, isNaN(value) ? 0 : value);
   };
 
   const toggleRule = (rule: Rule) => () => {
@@ -64,26 +59,29 @@ const LintingRulesList = () => {
               disablePadding
               style={{height: 40}}
             >
-              <Checkbox
-                edge="start"
-                checked={rule.isActive}
-                disableRipple
-                onChange={toggleRule(rule)}
-              />
+              {rule.name !== "identifierNamingType" && (
+                  <Checkbox
+                      edge="start"
+                      checked={rule.isActive}
+                      disableRipple
+                      onChange={toggleRule(rule)}
+                  />
+              )}
               <ListItemText primary={rule.name} />
-              {typeof rule.value === 'number' ?
-                (<TextField
-                  type="number"
-                  variant={"standard"}
-                  value={rule.value}
-                  onChange={handleNumberChange(rule)}
-                />) : typeof rule.value === 'string' ?
-                  (<TextField
-                    variant={"standard"}
-                    value={rule.value}
-                    onChange={e => handleValueChange(rule, e.target.value)}
-                  />) : null
-              }
+              {rule.name === "identifierNamingType" ? (
+                  <FormControl size="small">
+                    <InputLabel>Naming</InputLabel>
+                    <Select
+                    label="Naming"
+                        value={(rule.value as string) || "camel"}
+                        onChange={(e) => handleValueChange(rule, e.target.value as string)}
+                        sx={{minWidth: 140}}
+                    >
+                      <MenuItem value="camel">camelCase</MenuItem>
+                      <MenuItem value="snake">snake_case</MenuItem>
+                    </Select>
+                  </FormControl>
+              ) : null}
             </ListItem>
           )
         })}

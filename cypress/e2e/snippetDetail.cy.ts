@@ -9,8 +9,8 @@ describe('Add snippet tests', () => {
     //     AUTH0_PASSWORD
     // )
     cy.intercept('GET', BACKEND_URL+"/snippets/*", {
-      statusCode: 201,
-      body: fakeStore.getSnippetById("1"),
+      statusCode: 200,
+      body: fakeStore.getSnippetById("9af91631-cdfc-4341-9b8e-3694e5cb3672"),
     }).as("getSnippetById")
     cy.intercept('GET', BACKEND_URL+"/snippets").as("getSnippets")
 

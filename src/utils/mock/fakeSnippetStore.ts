@@ -14,16 +14,20 @@ const INITIAL_SNIPPETS: Snippet[] = [
     compliance: 'pending',
     author: 'John Doe',
     language: 'printscript',
-    extension: 'prs'
+    extension: 'prs',
+    description: 'A super snippet',
+    version: '1.0.0'
   },
   {
     id: 'c48cf644-fbc1-4649-a8f4-9dd7110640d9',
     name: 'Extra cool Snippet',
     content: 'let a : number = 5;\nlet b : number = 5;\n\nprintln(a + b);',
-    compliance: 'not-compliant',
+    compliance: 'non-compliant',
     author: 'John Doe',
     language: 'printscript',
-    extension: 'prs'
+    extension: 'prs',
+    description: 'An extra cool snippet',
+    version: '1.0.0'
   },
   {
     id: '34bf4b7a-d4a1-48be-bb26-7d9a3be46227',
@@ -32,7 +36,9 @@ const INITIAL_SNIPPETS: Snippet[] = [
     compliance: 'compliant',
     author: 'John Doe',
     language: 'printscript',
-    extension: 'prs'
+    extension: 'prs',
+    description: 'A boaring snippet',
+    version: '1.0.0'
   }
 ]
 
@@ -67,59 +73,96 @@ const paginatedUsers: PaginatedUsers = {
 const INITIAL_FORMATTING_RULES: Rule[] = [
   {
     id: '1',
-    name: "indentation",
+    name: "Indentation",
     isActive: true,
     value: 3
   },
   {
     id: '2',
-    name: "open-if-block-on-same-line",
-    isActive: false,
+    name: "SpaceBeforeColon",
+    isActive: true,
+    value: null
   },
   {
     id: '3',
-    name: "max-line-length",
+    name: "SpaceAfterColon",
     isActive: true,
-    value: 100
+    value: null
   },
   {
     id: '4',
-    name: "no-trailing-spaces",
-    isActive: false,
+    name: "SpaceAroundAssignment",
+    isActive: true,
     value: null
   },
   {
     id: '5',
-    name: "no-multiple-empty-lines",
-    isActive: false,
-    value: null,
-  }
+    name: "SpaceAroundOperators",
+    isActive: true,
+    value: null
+  },
+  {
+    id: '6',
+    name: "MaxSpaceBetweenTokens",
+    isActive: true,
+    value: null
+  },
+  {
+    id: '7',
+    name: "LineBreakBeforePrintln",
+    isActive: true,
+    value: 1
+  },
+  {
+    id: '8',
+    name: "LineBreakAfterSemiColon",
+    isActive: true,
+    value: null
+  },
+  {
+    id: '9',
+    name: "InlineBraceIfStatement",
+    isActive: true,
+    value: null
+  },
+  {
+    id: '10',
+    name: "BelowLineBraceIfStatement",
+    isActive: true,
+    value: null
+  },
+  {
+    id: '11',
+    name: "BraceLineBreak",
+    isActive: true,
+    value: 1
+  },
+  {
+    id: '12',
+    name: "KeywordSpacingAfter",
+    isActive: true,
+    value: null
+  },
 ]
 
 const INITIAL_LINTING_RULES: Rule[] = [
   {
     id: '1',
-    name: "no-expressions-in-print-line",
+    name: "printlnSimpleArg",
     isActive: true,
     value: null
   },
   {
     id: '2',
-    name: "no-unused-vars",
+    name: "readInputSimpleArg",
     isActive: true,
     value: null
   },
   {
     id: '3',
-    name: "no-undef-vars",
-    isActive: false,
-    value: null
-  },
-  {
-    id: '4',
-    name: "no-unused-params",
-    isActive: false,
-    value: null
+    name: "identifierNamingType",
+    isActive: true,
+    value: "camel"
   },
 ]
 

@@ -8,6 +8,8 @@ import {TestCaseResult} from "../queries.tsx";
 import {FileType} from "../../types/FileType.ts";
 import {Rule} from "../../types/Rule.ts";
 
+import {SnippetFilterDTO} from "../../api/types";
+
 const DELAY: number = 1000
 
 export class FakeSnippetOperations implements SnippetOperations {
@@ -29,7 +31,7 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  listSnippetDescriptors(page: number,pageSize: number): Promise<PaginatedSnippets> {
+  listSnippetDescriptors(page: number, pageSize: number, _snippetName?: string, _filters?: SnippetFilterDTO): Promise<PaginatedSnippets> {
     const response: PaginatedSnippets = {
       page: page,
       page_size: pageSize,
@@ -79,25 +81,31 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  getTestCases(): Promise<TestCase[]> {
+  lintSnippet(_id: string): Promise<string> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve("Linted snippet content"), DELAY)
+    })
+  }
+
+  getTestCases(_snippetId: string): Promise<TestCase[]> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.getTestCases()), DELAY)
     })
   }
 
-  postTestCase(testCase: TestCase): Promise<TestCase> {
+  postTestCase(_snippetId: string, testCase: TestCase): Promise<TestCase> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.postTestCase(testCase)), DELAY)
     })
   }
 
-  removeTestCase(id: string): Promise<string> {
+  removeTestCase(_snippetId: string, id: string): Promise<string> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.removeTestCase(id)), DELAY)
     })
   }
 
-  testSnippet(): Promise<TestCaseResult> {
+  testSnippet(_snippetId: string, _testId: string): Promise<TestCaseResult> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.testSnippet()), DELAY)
     })
@@ -124,6 +132,12 @@ export class FakeSnippetOperations implements SnippetOperations {
   modifyLintingRule(newRules: Rule[]): Promise<Rule[]> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.modifyLintingRule(newRules)), DELAY)
+    })
+  }
+
+  downloadSnippet(_id: string): Promise<Blob> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(new Blob(["Fake content"], {type: "text/plain"})), DELAY)
     })
   }
 }

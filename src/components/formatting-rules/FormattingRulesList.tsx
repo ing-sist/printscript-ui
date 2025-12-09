@@ -9,7 +9,7 @@ import {
   Typography
 } from "@mui/material";
 import {useGetFormatRules, useModifyFormatRules} from "../../utils/queries.tsx";
-import {queryClient} from "../../App.tsx";
+import {queryClient} from "../../queryClient.ts";
 import {Rule} from "../../types/Rule.ts";
 
 const FormattingRulesList = () => {

@@ -22,17 +22,16 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/ing-sist/printscript-ui-dev:latest
+          tags: ghcr.io/ing-sist/${{github.repository}}:${{github.ref_name}}-latest
 
           build-args: |
-            VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL_DEV }}
             VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL_DEV }}
             VITE_AUTH0_USERNAME=${{ secrets.VITE_AUTH0_USERNAME_DEV }}
             VITE_AUTH0_PASSWORD=${{ secrets.VITE_AUTH0_PASSWORD_DEV }}
@@ -40,10 +39,10 @@ jobs:
       - name: Deploy to Development VM
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DEV_VM_HOST }}
-          username: ${{ secrets.DEV_VM_USER }}
-          key: ${{ secrets.DEV_VM_SSH_KEY }}
+          host: ${{ secrets.SNIPPET_VM_DEV_IP }}
+          username: ${{ secrets.SNIPPET_VM_DEV_USER }}
+          key: ${{ secrets.SNIPPET_VM_DEV_SSH_KEY }}
           script: |
             cd infra
-            docker pull ghcr.io/ing-sist/printscript-ui-dev:latest
+            docker pull ghcr.io/ing-sist/${{github.repository}}:${{github.ref_name}}-latest
             docker compose -f docker-compose.dev.yml up -d

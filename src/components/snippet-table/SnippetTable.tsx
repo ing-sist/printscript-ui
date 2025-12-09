@@ -5,13 +5,17 @@ import {
   InputBase,
   Menu,
   MenuItem,
+  Select,
   styled,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TablePagination,
-  TableRow
+  TableRow,
+  FormControl,
+  InputLabel,
+  TableSortLabel
 } from "@mui/material";
 import {AddSnippetModal} from "./AddSnippetModal.tsx";
 import {useRef, useState} from "react";
@@ -21,16 +25,19 @@ import {CreateSnippetWithLang, getFileLanguage, Snippet} from "../../utils/snipp
 import {usePaginationContext} from "../../contexts/paginationContext.tsx";
 import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
 import {useGetFileTypes} from "../../utils/queries.tsx";
+import {SnippetFilterDTO} from "../../api/types";
 
 type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
   snippets?: Snippet[];
   loading: boolean;
   handleSearchSnippet: (snippetName: string) => void;
+  filters?: SnippetFilterDTO;
+  handleFilterChange?: (filters: SnippetFilterDTO) => void;
 }
 
 export const SnippetTable = (props: SnippetTableProps) => {
-  const {snippets, handleClickSnippet, loading,handleSearchSnippet} = props;
+  const {snippets, handleClickSnippet, loading, handleSearchSnippet, filters, handleFilterChange} = props;
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [popoverMenuOpened, setPopoverMenuOpened] = useState(false)
   const [snippet, setSnippet] = useState<CreateSnippetWithLang | undefined>()
@@ -59,7 +66,9 @@ export const SnippetTable = (props: SnippetTableProps) => {
         name: splitName[0],
         content: text,
         language: fileType.language,
-        extension: fileType.extension
+        extension: fileType.extension,
+        description: "",
+        version: "1.1"
       })
     }).catch(e => {
       console.error(e)
@@ -73,13 +82,26 @@ export const SnippetTable = (props: SnippetTableProps) => {
     setPopoverMenuOpened(false)
   }
 
+  const handleSort = (field: string) => {
+    if (handleFilterChange) {
+      const currentSort = filters?.sort ?? "";
+      const currentDir = filters?.dir ?? "ASC";
+      const isAsc = currentSort === field && currentDir === "ASC";
+      handleFilterChange({
+        ...filters,
+        sort: field,
+        dir: isAsc ? "DESC" : "ASC"
+      });
+    }
+  };
+
   return (
       <>
-        <Box display="flex" flexDirection="row" justifyContent="space-between">
-          <Box sx={{background: 'white', width: '30%', display: 'flex'}}>
+        <Box display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" mb={2}>
+          <Box sx={{background: 'white', width: '30%', display: 'flex', alignItems: 'center', borderRadius: 1, p: 0.5}}>
             <InputBase
                 sx={{ml: 1, flex: 1}}
-                placeholder="Search FileType"
+                placeholder="Search Snippet"
                 inputProps={{'aria-label': 'search'}}
                 onChange={e => handleSearchSnippet(e.target.value)}
             />
@@ -87,6 +109,50 @@ export const SnippetTable = (props: SnippetTableProps) => {
               <Search/>
             </IconButton>
           </Box>
+          
+          {handleFilterChange && (
+            <Box display="flex" gap={2}>
+              <FormControl size="small" sx={{minWidth: 120}}>
+                <InputLabel>Type</InputLabel>
+                <Select
+                  value={filters?.mode || 'ALL'}
+                  label="Type"
+                  onChange={(e) => handleFilterChange({...filters, mode: e.target.value})}
+                >
+                  <MenuItem value="ALL">All</MenuItem>
+                  <MenuItem value="OWNED">My Snippets</MenuItem>
+                  <MenuItem value="SHARED">Shared with me</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl size="small" sx={{minWidth: 120}}>
+                <InputLabel>Language</InputLabel>
+                <Select
+                  value={filters?.language || ''}
+                  label="Language"
+                  onChange={(e) => handleFilterChange({...filters, language: e.target.value})}
+                >
+                  <MenuItem value=""><em>All</em></MenuItem>
+                  {fileTypes?.map(ft => (
+                    <MenuItem key={ft.language} value={ft.language}>{ft.language}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl size="small" sx={{minWidth: 120}}>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={filters?.conformance || ''}
+                  label="Status"
+                  onChange={(e) => handleFilterChange({...filters, conformance: e.target.value})}
+                >
+                  <MenuItem value=""><em>All</em></MenuItem>
+                  <MenuItem value="PENDING">Pending</MenuItem>
+                  <MenuItem value="COMPLIANT">Compliant</MenuItem>
+                  <MenuItem value="NON_COMPLIANT">Non Compliant</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          )}
+
           <Button ref={popoverRef} variant="contained" disableRipple sx={{boxShadow: 0}}
                   onClick={() => setPopoverMenuOpened(true)}>
             <Add/>
@@ -96,10 +162,34 @@ export const SnippetTable = (props: SnippetTableProps) => {
         <Table size="medium" sx={{borderSpacing: "0 10px", borderCollapse: "separate"}}>
           <TableHead>
             <TableRow sx={{fontWeight: 'bold'}}>
-              <StyledTableCell sx={{fontWeight: "bold"}}>Name</StyledTableCell>
-              <StyledTableCell sx={{fontWeight: "bold"}}>Language</StyledTableCell>
+              <StyledTableCell sx={{fontWeight: "bold"}}>
+                <TableSortLabel
+                    active={filters?.sort === 'name'}
+                    direction={filters?.sort === 'name' && filters?.dir === 'DESC' ? 'desc' : 'asc'}
+                    onClick={() => handleSort('name')}
+                >
+                  Name
+                </TableSortLabel>
+              </StyledTableCell>
+              <StyledTableCell sx={{fontWeight: "bold"}}>
+                <TableSortLabel
+                    active={filters?.sort === 'language'}
+                    direction={filters?.sort === 'language' && filters?.dir === 'DESC' ? 'desc' : 'asc'}
+                    onClick={() => handleSort('language')}
+                >
+                  Language
+                </TableSortLabel>
+              </StyledTableCell>
               <StyledTableCell sx={{fontWeight: "bold"}}>Author</StyledTableCell>
-              <StyledTableCell sx={{fontWeight: "bold"}}>Conformance</StyledTableCell>
+              <StyledTableCell sx={{fontWeight: "bold"}}>
+                <TableSortLabel
+                    active={filters?.sort === 'conformance'}
+                    direction={filters?.sort === 'conformance' && filters?.dir === 'DESC' ? 'desc' : 'asc'}
+                    onClick={() => handleSort('conformance')}
+                >
+                  Conformance
+                </TableSortLabel>
+              </StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>{

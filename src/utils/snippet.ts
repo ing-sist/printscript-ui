@@ -4,7 +4,7 @@ import {FileType} from "../types/FileType.ts";
 export type ComplianceEnum =
     'pending' |
     'failed' |
-    'not-compliant' |
+    'non-compliant' |
     'compliant'
 
 
@@ -13,6 +13,8 @@ export type CreateSnippet = {
   content: string;
   language: string;
   extension: string;
+  description: string;
+  version: string;
 }
 
 export type CreateSnippetWithLang = CreateSnippet & { language: string }

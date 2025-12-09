@@ -21,7 +21,8 @@ import {Save} from "@mui/icons-material";
 import {CreateSnippet, CreateSnippetWithLang} from "../../utils/snippet.ts";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
 import {useCreateSnippet, useGetFileTypes} from "../../utils/queries.tsx";
-import {queryClient} from "../../App.tsx";
+import {queryClient} from "../../queryClient.ts";
+import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
 
 export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     open: boolean,
@@ -31,20 +32,32 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     const [language, setLanguage] = useState(defaultSnippet?.language ?? "printscript");
     const [code, setCode] = useState(defaultSnippet?.content ?? "");
     const [snippetName, setSnippetName] = useState(defaultSnippet?.name ?? "")
+    const [description, setDescription] = useState(defaultSnippet?.description ?? "");
     const {mutateAsync: createSnippet, isLoading: loadingSnippet} = useCreateSnippet({
         onSuccess: () => queryClient.invalidateQueries('listSnippets')
     })
     const {data: fileTypes} = useGetFileTypes();
+    const {createSnackbar} = useSnackbarContext();
 
     const handleCreateSnippet = async () => {
         const newSnippet: CreateSnippet = {
             name: snippetName,
             content: code,
             language: language,
-            extension: fileTypes?.find((f) => f.language === language)?.extension ?? "prs"
+            extension: fileTypes?.find((f) => f.language === language)?.extension ?? "txt",
+            description: description || "No description provided",
+            version: "1.1"
         }
-        await createSnippet(newSnippet);
-        onClose();
+        try {
+            await createSnippet(newSnippet);
+            setSnippetName("");
+            setDescription("");
+            setCode("");
+            onClose();
+        } catch (e) {
+            console.error(e);
+            createSnackbar("error", "Failed to create snippet");
+        }
     }
 
     useEffect(() => {
@@ -52,6 +65,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
             setCode(defaultSnippet?.content)
             setLanguage(defaultSnippet?.language)
             setSnippetName(defaultSnippet?.name)
+            setDescription(defaultSnippet?.description ?? "")
         }
     }, [defaultSnippet]);
 
@@ -80,7 +94,21 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
             }}>
                 <InputLabel htmlFor="name">Name</InputLabel>
                 <Input onChange={e => setSnippetName(e.target.value)} value={snippetName} id="name"
-                       sx={{width: '50%'}}/>
+                       sx={{width: '100%'}}/>
+            </Box>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px'
+            }}>
+                <InputLabel htmlFor="description">Description</InputLabel>
+                <Input
+                    onChange={e => setDescription(e.target.value)}
+                    value={description}
+                    id="description"
+                    placeholder="Describe functionality..."
+                    sx={{width: '100%'}}
+                />
             </Box>
             <Box sx={{
                 display: 'flex',
