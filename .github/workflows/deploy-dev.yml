@@ -21,7 +21,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
 
       - name: Build and push Docker image
@@ -29,11 +29,15 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/ing-sist/${{github.repository}}:${{github.ref_name}}-latest
+          tags: | 
+            ghcr.io/ing-sist/${{github.repository}}:${{github.ref_name}}-latest
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}-${{ github.sha }}
 
           build-args: |
+            USERNAME=${{ secrets.USERNAME }}
+            TOKEN=${{ secrets.TOKEN }}
             VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL_DEV }}
-            VITE_AUTH0_USERNAME=${{ secrets.VITE_AUTH0_USERNAME_DEV }}
+            VITE_AUTH0_USERNAME=${{ secrets.A }}
             VITE_AUTH0_PASSWORD=${{ secrets.VITE_AUTH0_PASSWORD_DEV }}
 
       - name: Deploy to Development VM
