@@ -37,7 +37,7 @@ jobs:
             USERNAME=${{ secrets.USERNAME }}
             TOKEN=${{ secrets.TOKEN }}
             VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL_DEV }}
-            VITE_AUTH0_USERNAME=${{ secrets.A }}
+            VITE_AUTH0_USERNAME=${{ secrets.VITE_AUTH0_USERNAME_DEV }}
             VITE_AUTH0_PASSWORD=${{ secrets.VITE_AUTH0_PASSWORD_DEV }}
 
       - name: Deploy to Development VM
