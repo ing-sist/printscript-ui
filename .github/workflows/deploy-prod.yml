@@ -1,10 +1,10 @@
-# .github/workflows/deploy-prod.yml
+# .github/workflows/deploy-dev.yml
 
-name: Deploy to Production
+name: Deploy to Development
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
@@ -22,14 +22,14 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/ing-sist/printscript-ui-main:latest
+          tags: ghcr.io/ing-sist/${{github.repository}}:${{github.ref_name}}-latest
 
           build-args: |
             VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL_PROD }}
@@ -39,10 +39,10 @@ jobs:
       - name: Deploy to Production VM
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.PROD_VM_HOST }}
-          username: ${{ secrets.PROD_VM_USER }}
-          key: ${{ secrets.PROD_VM_SSH_KEY }}
+          host: ${{ secrets.SNIPPET_VM_PROD_IP }}
+          username: ${{ secrets.SNIPPET_VM_PROD_USER }}
+          key: ${{ secrets.SNIPPET_VM_PROD_SSH_KEY }}
           script: |
             cd infra
-            docker pull ghcr.io/ing-sist/printscript-ui-main:latest
-            docker compose -f docker-compose.prod.yml up -d
+            docker pull ghcr.io/ing-sist/${{github.repository}}:${{github.ref_name}}-latest
+            docker-compose -f docker-compose.prod.yml up -d

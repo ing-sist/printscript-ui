@@ -45,4 +45,4 @@ jobs:
           script: |
             cd infra
             docker pull ghcr.io/ing-sist/${{github.repository}}:${{github.ref_name}}-latest
-            docker compose -f docker-compose.dev.yml up -d
+            docker-compose -f docker-compose.dev.yml up -d
