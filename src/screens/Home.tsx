@@ -9,7 +9,7 @@ import {usePaginationContext} from "../contexts/paginationContext.tsx";
 import useDebounce from "../hooks/useDebounce.ts";
 import {SnippetFilterDTO} from "../api/types";
 import {BACKEND_URL} from "../utils/constants.ts";
-import {useSnackbarContext} from "../contexts/snackbarContext.tsx";
+
 
 const HomeScreen = () => {
   const {id: paramsId} = useParams<{ id: string }>();
@@ -20,7 +20,6 @@ const HomeScreen = () => {
   const [healthCheckLoading, setHealthCheckLoading] = useState(false);
   const {page, page_size, count, handleChangeCount} = usePaginationContext()
   const {data, isLoading} = useGetSnippets(page, page_size, snippetName, filters)
-  const {createSnackbar} = useSnackbarContext();
 
   useEffect(() => {
     if (data?.count && data.count != count) {
@@ -58,10 +57,6 @@ const HomeScreen = () => {
         const message = await response.text();
         throw new Error(message || 'Health error endpoint returned an error');
       }
-      createSnackbar('success', 'Health error endpoint called successfully');
-    } catch (error) {
-      console.error('Failed to call health error endpoint', error);
-      createSnackbar('error', 'Failed to call health error endpoint');
     } finally {
       setHealthCheckLoading(false);
     }
