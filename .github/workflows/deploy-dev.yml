@@ -36,9 +36,15 @@ jobs:
           build-args: |
             USERNAME=${{ secrets.USERNAME }}
             TOKEN=${{ secrets.TOKEN }}
+            
             VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL_DEV }}
             VITE_AUTH0_USERNAME=${{ secrets.VITE_AUTH0_USERNAME_DEV }}
             VITE_AUTH0_PASSWORD=${{ secrets.VITE_AUTH0_PASSWORD_DEV }}
+            
+            VITE_AUTH0_DOMAIN=${{ secrets.VITE_AUTH0_DOMAIN_DEV }}
+            VITE_AUTH0_CLIENT_ID=${{ secrets.VITE_AUTH0_CLIENT_ID_DEV }}
+            VITE_AUTH0_AUDIENCE=${{ secrets.VITE_AUTH0_AUDIENCE_DEV }}
+            VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL_DEV }}
 
       - name: Deploy to Development VM
         uses: appleboy/ssh-action@master
@@ -48,5 +54,5 @@ jobs:
           key: ${{ secrets.SNIPPET_VM_DEV_SSH_KEY }}
           script: |
             cd infra
-            docker pull ghcr.io/${{github.repository}}-${{github.ref_name}}:latest
+            docker pull ghcr.io/ing-sist/${{github.repository}}-${{github.ref_name}}:latest
             docker-compose -f docker-compose.dev.yml up -d
