@@ -37,6 +37,10 @@ export interface SnippetResponseDTO {
   createdAt: string;
 }
 
+export interface SnippetDetailsDTO extends SnippetResponseDTO {
+  content: string;
+}
+
 export interface UserResponseDTO {
   id: string;
   email: string;
@@ -67,4 +71,54 @@ export interface Page<T> {
 
 export interface OwnerConfigDto {
     [key: string]: any;
+}
+
+export interface FormattingRulesDTO {
+  Indentation: number;
+  SpaceBeforeColon: boolean;
+  SpaceAfterColon: boolean;
+  SpaceAroundAssignment: boolean;
+  SpaceAroundOperators: boolean;
+  MaxSpaceBetweenTokens: boolean;
+  LineBreakBeforePrintln: number;
+  LineBreakAfterSemiColon: boolean;
+  InlineBraceIfStatement: boolean;
+  BelowLineBraceIfStatement: boolean;
+  BraceLineBreak: number;
+  KeywordSpacingAfter: boolean;
+}
+
+export interface LintingRulesDTO {
+  printlnSimpleArg: boolean;
+  readInputSimpleArg: boolean;
+  identifierNamingType: string; // "camel" | "snake"
+}
+
+export interface SnippetTestResponseDTO {
+  id: string;
+  name: string;
+  inputs: string[];
+  expectedOutputs: string[];
+  version: string;
+}
+
+export interface CreateTestRequestDTO {
+  name: string;
+  inputs: string[];
+  expectedOutputs: string[];
+}
+
+export type RunStatus = "SUCCESS" | "FAIL";
+
+export interface RunTestResponseDTO {
+  status: RunStatus;
+  outputs: string[];
+  errors: string[];
+  failures: Array<{
+    index: number;
+    expected: string | null;
+    obtained: string | null;
+    reason: string;
+  }>;
+  version: string;
 }

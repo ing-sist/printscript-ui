@@ -4,15 +4,15 @@ import {highlight, languages} from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button} from "@mui/material";
+import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {
   useDownloadSnippet,
   useUpdateSnippetById
 } from "../utils/queries.tsx";
-import {useFormatSnippet, useGetSnippetById, useShareSnippet, useLintSnippet} from "../utils/queries.tsx";
+import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
-import {BugReport, Delete, Download, Save, Share, FactCheck} from "@mui/icons-material";
+import {BugReport, Delete, Download, Save, Share} from "@mui/icons-material";
 import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
 import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx";
 import {Snippet} from "../utils/snippet.ts";
@@ -72,17 +72,8 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
 
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
-  const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
-  const {mutate: lintSnippet, isLoading: isLintLoading, data: lintSnippetData} = useLintSnippet()
+  const {mutateAsync: formatSnippet, isLoading: isFormatLoading} = useFormatSnippet()
   const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({onSuccess: () => queryClient.invalidateQueries(['snippet', id])})
-
-  const [lintResult, setLintResult] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (lintSnippetData) {
-      setLintResult(lintSnippetData)
-    }
-  }, [lintSnippetData])
 
   useEffect(() => {
     if (snippet) {
@@ -90,15 +81,18 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
     }
   }, [snippet]);
 
-  useEffect(() => {
-    if (formatSnippetData) {
-      setCode(formatSnippetData)
-    }
-  }, [formatSnippetData])
-
-
   async function handleShareSnippet(userId: string) {
     shareSnippet({snippetId: id, userId})
+  }
+
+  const handleFormat = async () => {
+    try {
+      const formatted = await formatSnippet(id);
+      setCode(formatted);
+      await queryClient.invalidateQueries(['snippet', id]);
+    } catch (e) {
+      console.error("Failed to format snippet", e);
+    }
   }
 
   return (
@@ -131,13 +125,8 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
               {/*</Tooltip>*/}
               {/* TODO: we can implement a live mode*/}
               <Tooltip title={"Format"}>
-                <IconButton onClick={() => formatSnippet(id)} disabled={isFormatLoading}>
+                <IconButton onClick={handleFormat} disabled={isFormatLoading}>
                   <ReadMoreIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={"Lint"}>
-                <IconButton onClick={() => lintSnippet(id)} disabled={isLintLoading}>
-                  <FactCheck />
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Save changes"}>
@@ -176,17 +165,8 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
         <ShareSnippetModal loading={loadingShare || isLoading} open={shareModalOppened}
                            onClose={() => setShareModalOppened(false)}
                            onShare={handleShareSnippet}/>
-        <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)}/>
+        <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)} snippetId={id}/>
         <DeleteConfirmationModal open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} id={snippet?.id ?? ""} setCloseDetails={handleCloseModal} />
-        <Dialog open={!!lintResult} onClose={() => setLintResult(null)}>
-          <DialogTitle>Lint Result</DialogTitle>
-          <DialogContent>
-            <Typography>{lintResult}</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setLintResult(null)}>Close</Button>
-          </DialogActions>
-        </Dialog>
       </Box>
   );
 }

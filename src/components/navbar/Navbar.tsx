@@ -41,7 +41,7 @@ export const Navbar = () => {
                     >
                         Printscript
                     </Typography>
-                    <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex'}, gap: '4px'}}>
+                    <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex'}, gap: '4px', alignItems: "center"}}>
                         {pages.map((page) => (
                             <Button
                                 key={page.title}
@@ -62,6 +62,7 @@ export const Navbar = () => {
                                 <Typography>{page.title}</Typography>
                             </Button>
                         ))}
+                        <Box sx={{flexGrow: 1}} />
                         <Button
                             onClick={() => logout({logoutParams: {returnTo: window.location.origin}})}
                             sx={{

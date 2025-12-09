@@ -4,7 +4,7 @@ import {FileType} from "../types/FileType.ts";
 export type ComplianceEnum =
     'pending' |
     'failed' |
-    'not-compliant' |
+    'non-compliant' |
     'compliant'
 
 

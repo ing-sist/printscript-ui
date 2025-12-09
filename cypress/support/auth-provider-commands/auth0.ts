@@ -1,24 +1,35 @@
 
 
 export function loginViaAuth0Ui(username: string, password: string) {
-  // App landing page redirects to Auth0.
-  cy.visit('/')
+  const frontendUrl = Cypress.env('FRONTEND_URL') || 'http://localhost:8080';
+  const auth0Domain = Cypress.env('auth0_domain');
 
-  // Login on Auth0.
+  cy.visit(frontendUrl);
+
   cy.origin(
-      Cypress.env('auth0_domain'),
-      { args: { username, password } },
-      ({ username, password }) => {
-        cy.get('input#username').type(username)
-        cy.get('input#password').type(password, { log: false })
-        cy.contains('button[value=default]', 'Continue').click()
-      }
-  )
+    auth0Domain,
+    { args: { username, password } },
+    ({ username, password }) => {
+      const tryAcceptConsent = () => {
+        cy.contains('button', /Accept|Continue/i, { timeout: 2000 }).click({ force: true });
+      };
 
-  // Ensure Auth0 has redirected us back to the RWA.
-  cy.url().should('equal', 'http://localhost:3000/')
+      cy.location('pathname', { timeout: 5000 }).then((path) => {
+        if (path.includes('/u/login') || path.includes('/authorize')) {
+          cy.get('input#username').type(username);
+          cy.get('input#password').type(password, { log: false });
+          cy.contains('button[value=default]', /Continue/i).click();
+          cy.location('pathname', { timeout: 5000 }).then((p) => {
+            if (p.includes('/u/consent')) {
+              tryAcceptConsent();
+            }
+          });
+        } else if (path.includes('/u/consent')) {
+          tryAcceptConsent();
+        }
+      });
+    }
+  );
+
+  cy.url().should('include', frontendUrl);
 }
-
-
-
-

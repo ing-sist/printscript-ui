@@ -68,7 +68,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
         language: fileType.language,
         extension: fileType.extension,
         description: "",
-        version: "1.0.0"
+        version: "1.1"
       })
     }).catch(e => {
       console.error(e)
@@ -147,7 +147,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
                   <MenuItem value=""><em>All</em></MenuItem>
                   <MenuItem value="PENDING">Pending</MenuItem>
                   <MenuItem value="COMPLIANT">Compliant</MenuItem>
-                  <MenuItem value="NOT_COMPLIANT">Not Compliant</MenuItem>
+                  <MenuItem value="NON_COMPLIANT">Non Compliant</MenuItem>
                 </Select>
               </FormControl>
             </Box>

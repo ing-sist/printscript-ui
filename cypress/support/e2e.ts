@@ -32,10 +32,9 @@ Cypress.Commands.add('loginToAuth0', (username: string, password: string) => {
       },
       {
         validate: () => {
-          // Validate presence of access token in localStorage.
-          cy.wrap(localStorage)
-              .invoke('getItem', 'authAccessToken')
-              .should('exist')
+          // Validate session by hitting the app and ensuring we aren't redirected to /login
+          cy.visit('/');
+          cy.url().should('not.include', '/login');
         },
       }
   )

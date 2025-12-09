@@ -1,6 +1,7 @@
 import { AxiosInstance } from 'axios';
 import { 
   Page,
+  SnippetDetailsDTO,
   SnippetFilterDTO, 
   SnippetResponseDTO, 
   SnippetUploadDTO, 
@@ -69,7 +70,7 @@ export const getAllSnippets = async (client: AxiosInstance, filter?: SnippetFilt
 
 // US #6: Get Metadata
 export const getSnippetMetadata = async (client: AxiosInstance, id: string) => {
-    const response = await client.get<SnippetResponseDTO>(`/snippets/${id}/metadata`);
+    const response = await client.get<SnippetDetailsDTO>(`/snippets/${id}`);
     return response.data;
 }
 
@@ -90,21 +91,18 @@ export const downloadSnippetBlob = async (client: AxiosInstance, id: string) => 
 
 // US #7: Share
 export const shareSnippet = async (client: AxiosInstance, id: string, targetUserId: string) => {
-    const response = await client.post(`/snippets/${id}/share`, targetUserId, {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+    const response = await client.post(`/snippets/${id}/share`, { targetUserId });
     return response.data;
 }
 
 export const formatSnippet = async (client: AxiosInstance, id: string) => {
-    const response = await client.post(`/snippets/format/${id}`);
+    const response = await client.post(`/rules/format/${id}`);
     return response.data;
 }
 
 export const lintSnippet = async (client: AxiosInstance, id: string) => {
-    const response = await client.post(`/snippets/lint/${id}`);
+    // Endpoint to be exposed in backend (mirrors format)
+    const response = await client.post(`/rules/lint/${id}`);
     return response.data;
 }
 
