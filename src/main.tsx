@@ -6,6 +6,8 @@ import {PaginationProvider} from "./contexts/paginationProvider.tsx";
 import {SnackbarProvider} from "./contexts/snackbarProvider.tsx";
 import {Auth0Provider} from "@auth0/auth0-react";
 
+console.log(import.meta.env.VITE_AUTH0_DOMAIN)
+console.log(import.meta.env.VITE_AUTH0_CLIENT_ID)
 createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <Auth0Provider
