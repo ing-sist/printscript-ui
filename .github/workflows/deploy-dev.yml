@@ -30,7 +30,7 @@ jobs:
           context: .
           push: true
           tags: | 
-            ghcr.io/ing-sist/${{github.repository}}-${{github.ref_name}}:latest
+            ghcr.io/${{github.repository}}-${{github.ref_name}}:latest
             ghcr.io/${{ github.repository }}-${{ github.ref_name }}:${{ github.sha }}
 
           build-args: |
